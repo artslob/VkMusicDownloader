@@ -16,9 +16,9 @@
 // -----------------------------------------------------------------------------
 // Подключение jQuery и download.js
 // -----------------------------------------------------------------------------
-
-if (typeof vk_downloader_dependencies == "undefined") {
-    let vk_downloader_dependencies = ["https://code.jquery.com/jquery-3.2.1.min.js", "https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.7/download.min.js"];
+if (typeof vk_downloader_dependencies === "undefined") {
+    var vk_downloader_dependencies = ["https://code.jquery.com/jquery-3.2.1.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.7/download.min.js"];
 
     for (let i = 0; i < vk_downloader_dependencies.length; i++) {
         let script = document.createElement('script');
@@ -30,7 +30,6 @@ if (typeof vk_downloader_dependencies == "undefined") {
 // -----------------------------------------------------------------------------
 // Настройки
 // -----------------------------------------------------------------------------
-
 var VK_DOWLOADER_DOWNLOAD_LATEST = 0; // Если потребуется загрузить только N последних аудиозаписей, укажите N. Иначе укажите 0
 var VK_DOWNLOADER_START_TIMEOUT = 2000; // Промежуток времени, отведённый на подгрузку скриптов (мс)
 var VK_DOWNLOADER_TRIGGER_INTERVAL = 500; // Интервал между переходами по аудиозаписям (мс)
@@ -43,32 +42,35 @@ var VK_DOWLOADER_PLAYER_TIMEOUT = 500; // Время работы плеера �
 
 // Проверка на наличие окна с плейлистом
 function if_playlist() {
-    return $(".ap_layer_wrap").css("display") == "block";
+    return $(".ap_layer_wrap").css("display") === "block";
 }
 
 // Вызов скрипта ВК и получение ссылки на скачивание
 function vk_downloader_get_links(audios, handler, callback) {
     let i = 0;
-    let interval = setInterval(function() {
-        if (i >= audios.length || (VK_DOWLOADER_DOWNLOAD_LATEST != 0 && i >= VK_DOWLOADER_DOWNLOAD_LATEST)) {
-            if (typeof callback == "function") {
-                callback();
+    let interval = setInterval(
+        function () {
+            if (i >= audios.length || (VK_DOWLOADER_DOWNLOAD_LATEST !== 0 && i >= VK_DOWLOADER_DOWNLOAD_LATEST)) {
+                if (typeof callback === "function") {
+                    callback();
+                }
+                clearInterval(interval);
+                return;
             }
-            clearInterval(interval);
-            return;
-        }
-        let newEvent = new Event("click");
-        audios[i].dispatchEvent(newEvent);
-        getAudioPlayer().toggleAudio(audios[i], newEvent);
-        setTimeout(function() {
-            let performer = jQuery(audios[i]).find(".audio_row__performers").text().trim();
-            let title = jQuery(audios[i]).find(".audio_row__title").text().trim();
-            let url = getAudioPlayer()._impl._currentAudioEl.src;
-            console.log("Downloading:  " + performer + " - " + title);
-            handler(url, performer, title);
-            i++;
-        }, VK_DOWLOADER_PLAYER_TIMEOUT);
-    }, VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWLOADER_PLAYER_TIMEOUT);
+            let newEvent = new Event("click");
+            audios[i].dispatchEvent(newEvent);
+            getAudioPlayer().toggleAudio(audios[i], newEvent);
+            setTimeout(function () {
+                let performer = jQuery(audios[i]).find(".audio_row__performers").text().trim();
+                let title = jQuery(audios[i]).find(".audio_row__title").text().trim();
+                let url = getAudioPlayer()._impl._currentAudioEl.src;
+                console.log("Downloading:  " + performer + " - " + title);
+                handler(url, performer, title);
+                i++;
+            }, VK_DOWLOADER_PLAYER_TIMEOUT);
+        },
+        VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWLOADER_PLAYER_TIMEOUT
+    );
 }
 
 // Скачать отдельный файл
@@ -76,9 +78,9 @@ function vk_downloader_download_file(url, name, type, callback) {
     let xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
     xhr.responseType = "blob";
-    xhr.onload = function() {
+    xhr.onload = function () {
         download(xhr.response, name + ".mp3", type);
-        if (typeof callback == "function") {
+        if (typeof callback === "function") {
             callback();
         }
     };
@@ -102,7 +104,7 @@ function vk_downloader_download_all_audio() {
         elems = jQuery(".audio_row_content");
     }
 
-    if (elems.length == 0) {
+    if (elems.length === 0) {
         console.log("Нет аудиозаписей!");
         return;
     }
@@ -116,22 +118,23 @@ function vk_downloader_download_all_audio() {
     }
     console.log(
         "Ожидаемое время загрузки: " +
-        Math.round(((VK_DOWLOADER_DOWNLOAD_LATEST != 0 ? VK_DOWLOADER_DOWNLOAD_LATEST : elems.length) * (VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWLOADER_PLAYER_TIMEOUT)) / (1000)) +
+        Math.round(((VK_DOWLOADER_DOWNLOAD_LATEST !== 0 ? VK_DOWLOADER_DOWNLOAD_LATEST : elems.length) * (VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWLOADER_PLAYER_TIMEOUT)) / (1000)) +
         " секунд");
 
-    vk_downloader_get_links(elems, 
-    function(url, performer, title) {
-        let name = performer + " - " + title;
-        vk_downloader_download_file(url, name, "audio/mp3");
-    }, 
-    function() {
-        console.log("Все аудиозаписи скачаны!");
-    });
+    vk_downloader_get_links(
+        elems,
+        function (url, performer, title) {
+            let name = performer + " - " + title;
+            vk_downloader_download_file(url, name, "audio/mp3");
+        },
+        function () {
+            console.log("Все аудиозаписи скачаны!");
+        }
+    );
 }
 
 
 // -----------------------------------------------------------------------------
 // Main
 // -----------------------------------------------------------------------------
-
 setTimeout(vk_downloader_download_all_audio, VK_DOWNLOADER_START_TIMEOUT);
