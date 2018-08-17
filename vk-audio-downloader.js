@@ -116,10 +116,7 @@ function vk_downloader_download_all_audio() {
             return;
         }
     }
-    console.log(
-        "Ожидаемое время загрузки: " +
-        Math.round(((VK_DOWLOADER_DOWNLOAD_LATEST !== 0 ? VK_DOWLOADER_DOWNLOAD_LATEST : elems.length) * (VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWLOADER_PLAYER_TIMEOUT)) / (1000)) +
-        " секунд");
+    console.log("Ожидаемое время загрузки: " + vk_downloader_expected_download_time(elems) + " секунд");
 
     vk_downloader_get_links(
         elems,
@@ -131,6 +128,14 @@ function vk_downloader_download_all_audio() {
             console.log("Все аудиозаписи скачаны!");
         }
     );
+}
+
+//ожидаемое время загрузки аудиозаписей
+function vk_downloader_expected_download_time(audios) {
+    let num = VK_DOWLOADER_DOWNLOAD_LATEST !== 0 ? VK_DOWLOADER_DOWNLOAD_LATEST : audios.length;
+    let ms = num * (VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWLOADER_PLAYER_TIMEOUT);
+    let sec = ms / 1000;
+    return Math.round(sec);
 }
 
 
