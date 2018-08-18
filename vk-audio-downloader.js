@@ -148,7 +148,8 @@ function vk_downloader_download_all_audio() {
     if (VK_DOWNLOADER_DOWNLOAD_LATEST) {
         console.log("Загружаем лишь " + VK_DOWNLOADER_DOWNLOAD_LATEST + " последних записей");
         if (VK_DOWNLOADER_DOWNLOAD_LATEST > elems.length) {
-            console.log("Ошибка: Не все аудиозаписи могут быть загружены! Обновите страницу, опуститесь до дна списка и повторите снова");
+            console.log("Ошибка: переменная 'VK_DOWNLOADER_DOWNLOAD_LATEST' больше чем количество аудиозаписей! " +
+                "Обновите страницу, опуститесь до дна списка и повторите снова.");
             return;
         }
     }
