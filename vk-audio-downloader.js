@@ -30,10 +30,10 @@ if (typeof vk_downloader_dependencies === "undefined") {
 // -----------------------------------------------------------------------------
 // Настройки
 // -----------------------------------------------------------------------------
-var VK_DOWLOADER_DOWNLOAD_LATEST = 0; // Если потребуется загрузить только N последних аудиозаписей, укажите N. Иначе укажите 0
+var VK_DOWNLOADER_DOWNLOAD_LATEST = 0; // Если потребуется загрузить только N последних аудиозаписей, укажите N. Иначе укажите 0
 var VK_DOWNLOADER_START_TIMEOUT = 2000; // Промежуток времени, отведённый на подгрузку скриптов (мс)
 var VK_DOWNLOADER_TRIGGER_INTERVAL = 500; // Интервал между переходами по аудиозаписям (мс)
-var VK_DOWLOADER_PLAYER_TIMEOUT = 500; // Время работы плеера ВК (мс)
+var VK_DOWNLOADER_PLAYER_TIMEOUT = 500; // Время работы плеера ВК (мс)
 
 
 // -----------------------------------------------------------------------------
@@ -50,7 +50,7 @@ function vk_downloader_get_links(audios, handler, callback) {
     let i = 0;
     let interval = setInterval(
         function () {
-            if (i >= audios.length || (VK_DOWLOADER_DOWNLOAD_LATEST !== 0 && i >= VK_DOWLOADER_DOWNLOAD_LATEST)) {
+            if (i >= audios.length || (VK_DOWNLOADER_DOWNLOAD_LATEST !== 0 && i >= VK_DOWNLOADER_DOWNLOAD_LATEST)) {
                 if (typeof callback === "function") {
                     callback();
                 }
@@ -67,9 +67,9 @@ function vk_downloader_get_links(audios, handler, callback) {
                 console.log("Downloading:  " + performer + " - " + title);
                 handler(url, performer, title);
                 i++;
-            }, VK_DOWLOADER_PLAYER_TIMEOUT);
+            }, VK_DOWNLOADER_PLAYER_TIMEOUT);
         },
-        VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWLOADER_PLAYER_TIMEOUT
+        VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWNLOADER_PLAYER_TIMEOUT
     );
 }
 
@@ -109,9 +109,9 @@ function vk_downloader_download_all_audio() {
         return;
     }
     console.log("Найдено аудиозаписей: ", elems.length);
-    if (VK_DOWLOADER_DOWNLOAD_LATEST) {
-        console.log("Загружаем лишь " + VK_DOWLOADER_DOWNLOAD_LATEST + " последних записей");
-        if (VK_DOWLOADER_DOWNLOAD_LATEST > elems.length) {
+    if (VK_DOWNLOADER_DOWNLOAD_LATEST) {
+        console.log("Загружаем лишь " + VK_DOWNLOADER_DOWNLOAD_LATEST + " последних записей");
+        if (VK_DOWNLOADER_DOWNLOAD_LATEST > elems.length) {
             console.log("Ошибка: Не все аудиозаписи могут быть загружены! Обновите страницу, опуститесь до дна списка и повторите снова");
             return;
         }
@@ -132,8 +132,8 @@ function vk_downloader_download_all_audio() {
 
 //ожидаемое время загрузки аудиозаписей
 function vk_downloader_expected_download_time(audios) {
-    let num = VK_DOWLOADER_DOWNLOAD_LATEST !== 0 ? VK_DOWLOADER_DOWNLOAD_LATEST : audios.length;
-    let ms = num * (VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWLOADER_PLAYER_TIMEOUT);
+    let num = VK_DOWNLOADER_DOWNLOAD_LATEST !== 0 ? VK_DOWNLOADER_DOWNLOAD_LATEST : audios.length;
+    let ms = num * (VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWNLOADER_PLAYER_TIMEOUT);
     let sec = ms / 1000;
     return Math.round(sec);
 }
