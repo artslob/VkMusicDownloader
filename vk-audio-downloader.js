@@ -98,7 +98,7 @@ function vk_downloader_get_links(audios, handler, callback) {
             getAudioPlayer().toggleAudio(audios[i], newEvent);
             setTimeout(function () {
                 let performer = jQuery(audios[i]).find(".audio_row__performers").text().trim();
-                let title = jQuery(audios[i]).find(".audio_row__title").text().trim();
+                let title = jQuery(audios[i]).find(".audio_row__title .audio_row__title_inner").text().trim();
                 let url = getAudioPlayer()._impl._currentAudioEl.src;
                 console.log("Downloading:  " + performer + " - " + title);
                 handler(url, performer, title);
