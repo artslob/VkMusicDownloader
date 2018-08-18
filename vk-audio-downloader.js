@@ -180,4 +180,5 @@ function vk_downloader_expected_download_time(audios) {
 // -----------------------------------------------------------------------------
 // Main
 // -----------------------------------------------------------------------------
+console.trace();
 setTimeout(vk_downloader_download_all_audio, VK_DOWNLOADER_START_TIMEOUT);
