@@ -51,14 +51,14 @@ function VkDownloaderCreateHandler() {
         this.array = [];
         this.handler = function (url, performer, title) {
             let name = performer + ' - ' + title;
-            this.array.push(name + '\t' + url + '\n');
+            this.array.push(name + '\t' + url);
         };
         this.callback = function () {
             let audios_txt = document.createElement('a');
             audios_txt.id = 'audios_txt';
             audios_txt.download = 'audios.txt';
             audios_txt.innerHTML = 'audios.txt';
-            audios_txt.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.array.join(''));
+            audios_txt.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.array.join('\n'));
             document.getElementsByTagName('body')[0].appendChild(audios_txt);
             audios_txt.click();
         };
