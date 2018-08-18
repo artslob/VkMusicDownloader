@@ -132,32 +132,32 @@ function vk_downloader_download_file(url, name, type, callback) {
 
 // Скачать вcе аудиозаписи
 function vk_downloader_download_all_audio() {
-    let elems;
+    let audios;
     if (vk_downloader_if_playlist()) {
         console.log("Загружаем аудиозаписи из открытого плейлиста");
-        elems = jQuery(".ap_layer_wrap .audio_row_content");
+        audios = jQuery(".ap_layer_wrap .audio_row_content");
     } else {
-        elems = jQuery(".audio_row_content");
+        audios = jQuery(".audio_row_content");
     }
 
-    if (elems.length === 0) {
+    if (audios.length === 0) {
         console.log("Нет аудиозаписей!");
         return;
     }
-    console.log("Найдено аудиозаписей: ", elems.length);
+    console.log("Найдено аудиозаписей: ", audios.length);
     if (VK_DOWNLOADER_DOWNLOAD_LATEST) {
         console.log("Загружаем лишь " + VK_DOWNLOADER_DOWNLOAD_LATEST + " последних записей");
-        if (VK_DOWNLOADER_DOWNLOAD_LATEST > elems.length) {
+        if (VK_DOWNLOADER_DOWNLOAD_LATEST > audios.length) {
             console.log("Ошибка: переменная 'VK_DOWNLOADER_DOWNLOAD_LATEST' больше чем количество аудиозаписей! " +
                 "Обновите страницу, опуститесь до дна списка и повторите снова.");
             return;
         }
     }
-    console.log("Ожидаемое время загрузки: " + vk_downloader_expected_download_time(elems) + " секунд");
+    console.log("Ожидаемое время загрузки: " + vk_downloader_expected_download_time(audios) + " секунд");
 
     let handler = new VkDownloaderCreateHandler();
     vk_downloader_get_links(
-        elems,
+        audios,
         function (url, performer, title) {
             handler.handler(url, performer, title);
         },
