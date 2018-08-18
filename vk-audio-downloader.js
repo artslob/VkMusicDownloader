@@ -77,7 +77,7 @@ function VkDownloaderCreateHandler() {
 }
 
 // Проверка на наличие окна с плейлистом
-function if_playlist() {
+function vk_downloader_if_playlist() {
     return $(".ap_layer_wrap").css("display") === "block";
 }
 
@@ -133,7 +133,7 @@ function vk_downloader_download_file(url, name, type, callback) {
 // Скачать вcе аудиозаписи
 function vk_downloader_download_all_audio() {
     let elems;
-    if (if_playlist()) {
+    if (vk_downloader_if_playlist()) {
         console.log("Загружаем аудиозаписи из открытого плейлиста");
         elems = jQuery(".ap_layer_wrap .audio_row_content");
     } else {
