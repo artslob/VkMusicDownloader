@@ -34,11 +34,47 @@ var VK_DOWNLOADER_DOWNLOAD_LATEST = 0; // Если потребуется заг
 var VK_DOWNLOADER_START_TIMEOUT = 2000; // Промежуток времени, отведённый на подгрузку скриптов (мс)
 var VK_DOWNLOADER_TRIGGER_INTERVAL = 500; // Интервал между переходами по аудиозаписям (мс)
 var VK_DOWNLOADER_PLAYER_TIMEOUT = 500; // Время работы плеера ВК (мс)
+/* Определяет, каким образом будут скачиваться аудиозаписи.
+Если 'TEXT', то будет загружен 1 текстовый файл, в котором будет список из названий аудиозаписей и их url.
+Если 'FILE', то будут загружены все аудиозаписи разом средствами браузера. */
+var VK_DOWNLOADER_HANDLER_TYPE = 'TEXT';
 
 
 // -----------------------------------------------------------------------------
 // Вспомогательные функции
 // -----------------------------------------------------------------------------
+
+// Создаёт объект, предоставляющий интерфейс в зависимости от VK_DOWNLOADER_HANDLER_TYPE
+function VkDownloaderCreateHandler() {
+    let type = VK_DOWNLOADER_HANDLER_TYPE.toLowerCase();
+    if (type === 'text') {
+        this.array = [];
+        this.handler = function (url, performer, title) {
+            let name = performer + ' - ' + title;
+            this.array.push(name + '\t' + url + '\n');
+        };
+        this.callback = function () {
+            let audios_txt = document.createElement('a');
+            audios_txt.id = 'audios_txt';
+            audios_txt.download = 'audios.txt';
+            audios_txt.innerHTML = 'audios.txt';
+            audios_txt.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.array.join(''));
+            document.getElementsByTagName('body')[0].appendChild(audios_txt);
+            audios_txt.click();
+        };
+    }
+    else if (type === 'file') {
+        this.handler = function (url, performer, title) {
+            let name = performer + ' - ' + title;
+            vk_downloader_download_file(url, name, 'audio/mp3');
+        };
+        this.callback = function () {
+        };
+    }
+    else {
+        throw new Error("VK_DOWNLOADER_HANDLER_TYPE должно быть 'TEXT' или 'FILE'!");
+    }
+}
 
 // Проверка на наличие окна с плейлистом
 function if_playlist() {
@@ -118,19 +154,20 @@ function vk_downloader_download_all_audio() {
     }
     console.log("Ожидаемое время загрузки: " + vk_downloader_expected_download_time(elems) + " секунд");
 
+    let handler = new VkDownloaderCreateHandler();
     vk_downloader_get_links(
         elems,
         function (url, performer, title) {
-            let name = performer + " - " + title;
-            vk_downloader_download_file(url, name, "audio/mp3");
+            handler.handler(url, performer, title);
         },
         function () {
             console.log("Все аудиозаписи скачаны!");
+            handler.callback();
         }
     );
 }
 
-//ожидаемое время загрузки аудиозаписей
+// Ожидаемое время загрузки аудиозаписей
 function vk_downloader_expected_download_time(audios) {
     let num = VK_DOWNLOADER_DOWNLOAD_LATEST !== 0 ? VK_DOWNLOADER_DOWNLOAD_LATEST : audios.length;
     let ms = num * (VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWNLOADER_PLAYER_TIMEOUT);
