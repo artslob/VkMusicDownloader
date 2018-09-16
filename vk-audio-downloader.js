@@ -51,8 +51,12 @@ function VkDownloaderCreateHandler() {
     let type = VK_DOWNLOADER_HANDLER_TYPE.toLowerCase();
     if (type === 'text') {
         this.array = [];
-        this.handler = function (url, performer, title) {
+        this.handler = function (url, performer, title, is_blocked) {
             let name = performer + ' - ' + title;
+            if (is_blocked) {
+                console.log('BLOCKED: ' + name);
+                return;
+            }
             this.array.push(name + '\t' + url);
         };
         this.callback = function () {
@@ -66,8 +70,12 @@ function VkDownloaderCreateHandler() {
         };
     }
     else if (type === 'file') {
-        this.handler = function (url, performer, title) {
+        this.handler = function (url, performer, title, is_blocked) {
             let name = performer + ' - ' + title;
+            if (is_blocked) {
+                console.log('BLOCKED: ' + name);
+                return;
+            }
             vk_downloader_download_file(url, name, 'audio/mp3');
         };
         this.callback = function () {
@@ -81,6 +89,16 @@ function VkDownloaderCreateHandler() {
 // Проверка на наличие окна с плейлистом
 function vk_downloader_if_playlist() {
     return $(".ap_layer_wrap").css("display") === "block";
+}
+
+function vk_downloader_check_is_blocked(audio) {
+    let parent = audio.parentElement;
+    if (parent.hasAttribute('classList')) {
+        return parent.classList.contains('audio_claimed');
+    }
+    else {
+        return parent.className.indexOf('audio_claimed') > -1;
+    }
 }
 
 // Вызов скрипта ВК и получение ссылки на скачивание
@@ -102,8 +120,9 @@ function vk_downloader_get_links(audios, handler, callback) {
                 let performer = jQuery(audios[i]).find(".audio_row__performers").text().trim();
                 let title = jQuery(audios[i]).find(".audio_row__title .audio_row__title_inner").text().trim();
                 let url = getAudioPlayer()._impl._currentAudioEl.src;
+                let is_blocked = vk_downloader_check_is_blocked(audios[i]);
                 console.log("Downloading:  " + performer + " - " + title);
-                handler(url, performer, title);
+                handler(url, performer, title, is_blocked);
                 i++;
             }, VK_DOWNLOADER_PLAYER_TIMEOUT);
         },
@@ -160,8 +179,8 @@ function vk_downloader_download_all_audio() {
     let handler = new VkDownloaderCreateHandler();
     vk_downloader_get_links(
         audios,
-        function (url, performer, title) {
-            handler.handler(url, performer, title);
+        function (url, performer, title, is_blocked) {
+            handler.handler(url, performer, title, is_blocked);
         },
         function () {
             console.log("Все аудиозаписи скачаны!");
