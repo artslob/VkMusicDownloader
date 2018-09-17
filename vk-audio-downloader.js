@@ -51,7 +51,7 @@ function VkDownloaderCreateHandler() {
     let type = VK_DOWNLOADER_HANDLER_TYPE.toLowerCase();
     if (type === 'text') {
         this.array = [];
-        this.handler = function (url, performer, title, is_blocked) {
+        this.handle = function (url, performer, title, is_blocked) {
             let name = performer + ' - ' + title;
             if (is_blocked) {
                 console.log('BLOCKED: ' + name);
@@ -70,7 +70,7 @@ function VkDownloaderCreateHandler() {
         };
     }
     else if (type === 'file') {
-        this.handler = function (url, performer, title, is_blocked) {
+        this.handle = function (url, performer, title, is_blocked) {
             let name = performer + ' - ' + title;
             if (is_blocked) {
                 console.log('BLOCKED: ' + name);
@@ -102,15 +102,14 @@ function vk_downloader_check_is_blocked(audio) {
 }
 
 // Вызов скрипта ВК и получение ссылки на скачивание
-function vk_downloader_get_links(audios, handler, callback) {
+function vk_downloader_get_links(audios, handler) {
     let i = 0;
     let interval = setInterval(
         function () {
             if (i >= audios.length || (VK_DOWNLOADER_DOWNLOAD_LATEST !== 0 && i >= VK_DOWNLOADER_DOWNLOAD_LATEST)) {
-                if (typeof callback === "function") {
-                    callback();
-                }
+                console.log("Все аудиозаписи скачаны!");
                 clearInterval(interval);
+                handler.callback();
                 return;
             }
             let newEvent = new Event("click");
@@ -122,7 +121,7 @@ function vk_downloader_get_links(audios, handler, callback) {
                 let url = getAudioPlayer()._impl._currentAudioEl.src;
                 let is_blocked = vk_downloader_check_is_blocked(audios[i]);
                 console.log("Downloading:  " + performer + " - " + title);
-                handler(url, performer, title, is_blocked);
+                handler.handle(url, performer, title, is_blocked);
                 i++;
             }, VK_DOWNLOADER_PLAYER_TIMEOUT);
         },
@@ -177,16 +176,7 @@ function vk_downloader_download_all_audio() {
     console.log("Ожидаемое время загрузки: " + vk_downloader_expected_download_time(audios) + " секунд");
 
     let handler = new VkDownloaderCreateHandler();
-    vk_downloader_get_links(
-        audios,
-        function (url, performer, title, is_blocked) {
-            handler.handler(url, performer, title, is_blocked);
-        },
-        function () {
-            console.log("Все аудиозаписи скачаны!");
-            handler.callback();
-        }
-    );
+    vk_downloader_get_links(audios, handler);
 }
 
 // Ожидаемое время загрузки аудиозаписей
