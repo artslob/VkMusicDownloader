@@ -58,6 +58,7 @@ function VkDownloaderCreateHandler() {
                 console.log('BLOCKED: ' + name);
                 return;
             }
+            url = url.split('?extra=')[0];  // removing extra params
             this.array.push(name + '\t' + url);
         };
         this.callback = function () {
