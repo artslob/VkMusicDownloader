@@ -106,9 +106,10 @@ function vk_downloader_check_is_blocked(audio) {
 // Вызов скрипта ВК и получение ссылки на скачивание
 function vk_downloader_get_links(audios, handler) {
     let i = 0;
+    let num = vk_downloader_audios_max_number(audios);
     let interval = setInterval(
         function () {
-            if (i >= audios.length || (VK_DOWNLOADER_DOWNLOAD_LATEST !== 0 && i >= VK_DOWNLOADER_DOWNLOAD_LATEST)) {
+            if (i >= num) {
                 console.log("Все аудиозаписи скачаны!");
                 clearInterval(interval);
                 handler.callback();
@@ -181,9 +182,17 @@ function vk_downloader_download_all_audio() {
     vk_downloader_get_links(audios, handler);
 }
 
+// Находит макс. кол-во аудиозаписей, которое может быть загружено
+function vk_downloader_audios_max_number(audios) {
+    if (VK_DOWNLOADER_DOWNLOAD_LATEST !== 0 && VK_DOWNLOADER_DOWNLOAD_LATEST <= audios.length)
+        return VK_DOWNLOADER_DOWNLOAD_LATEST;
+
+    return audios.length;
+}
+
 // Ожидаемое время загрузки аудиозаписей
 function vk_downloader_expected_download_time(audios) {
-    let num = VK_DOWNLOADER_DOWNLOAD_LATEST !== 0 ? VK_DOWNLOADER_DOWNLOAD_LATEST : audios.length;
+    let num = vk_downloader_audios_max_number(audios);
     let ms = num * (VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWNLOADER_PLAYER_TIMEOUT);
     let sec = ms / 1000;
     return Math.round(sec);
