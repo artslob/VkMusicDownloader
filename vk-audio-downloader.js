@@ -170,6 +170,11 @@ function vk_downloader_download_all_audio() {
     console.log("Найдено аудиозаписей: ", audios.length);
     if (VK_DOWNLOADER_DOWNLOAD_LATEST) {
         console.log("Загружаем лишь " + VK_DOWNLOADER_DOWNLOAD_LATEST + " последних записей");
+        if (VK_DOWNLOADER_DOWNLOAD_LATEST < 0) {
+            console.log("Ошибка: переменная 'VK_DOWNLOADER_DOWNLOAD_LATEST' не может быть отрицательна! " +
+                "Обновите страницу, опуститесь до дна списка и повторите снова.");
+            return;
+        }
         if (VK_DOWNLOADER_DOWNLOAD_LATEST > audios.length) {
             console.log("Ошибка: переменная 'VK_DOWNLOADER_DOWNLOAD_LATEST' больше чем количество аудиозаписей! " +
                 "Обновите страницу, опуститесь до дна списка и повторите снова.");
