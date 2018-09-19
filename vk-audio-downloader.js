@@ -123,7 +123,7 @@ function vk_downloader_get_links(audios, handler) {
                 let title = jQuery(audios[i]).find(".audio_row__title .audio_row__title_inner").text().trim();
                 let url = getAudioPlayer()._impl._currentAudioEl.src;
                 let is_blocked = vk_downloader_check_is_blocked(audios[i]);
-                console.log("Downloading:  " + performer + " - " + title);
+                console.log('[' + (i + 1) + ' of ' + num + '] ' + performer + ' - ' + title);
                 handler.handle(url, performer, title, is_blocked);
                 i++;
             }, VK_DOWNLOADER_PLAYER_TIMEOUT);
