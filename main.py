@@ -1,24 +1,32 @@
 import asyncio
 import logging
-from contextlib import closing
+import os
 
+
+import aiofiles
 import aiohttp
 
 
-@asyncio.coroutine
-def download(name, url, session, semaphore, chunk_size=1 << 15):
-    with (yield from semaphore):  # limit number of concurrent downloads
-        filename = name
-        logging.info('downloading %s', filename)
-        response = yield from session.get(url)
-        with closing(response), open(filename, 'wb') as file:
-            while True:  # save file
-                chunk = yield from response.content.read(chunk_size)
-                if not chunk:
-                    break
-                file.write(chunk)
-        logging.info('done %s', filename)
-    return filename, (response.status, tuple(response.headers.items()))
+async def download_coroutine(session, name, url, chunk_size=1 << 15):
+    try:
+        async with session.get(url) as response:
+            logging.info('downloading %s', name)
+            filename = os.path.join('/E/Music/vk/', name)
+            async with aiofiles.open(filename, 'wb') as file:
+                while True:
+                    chunk = await response.content.read(chunk_size)
+                    if not chunk:
+                        break
+                    await file.write(chunk)
+            logging.info('done %s', name)
+            return await response.release()
+    except aiohttp.client_exceptions.ClientError as e:
+        logging.exception('error occurred')
+
+
+async def download(loop, name, url):
+    async with aiohttp.ClientSession(loop=loop) as session:
+        await download_coroutine(session, name, url)
 
 
 def main():
@@ -26,14 +34,17 @@ def main():
 
     data = []
     with open('links_with_names.txt') as file:
-        for line in file.readlines()[:4]:
+        for line in file.readlines():
             name, url = (el.strip() for el in line.strip().split('\t'))
-            data.append((name, url))
+            name: str
+            data.append((name.replace('/', ''), url))
 
-    with closing(asyncio.get_event_loop()) as loop, closing(aiohttp.ClientSession()) as session:
-        semaphore = asyncio.Semaphore(4)
-        download_tasks = (download(name, url, session, semaphore) for name, url in data)
-        result = loop.run_until_complete(asyncio.gather(*download_tasks))
+    num = 10
+
+    loop = asyncio.get_event_loop()
+    for i in range(len(data) // num):
+        low, upper = i * num, (i + 1) * num
+        loop.run_until_complete(asyncio.gather(*(download(loop, name, url) for name, url in data[low:upper])))
 
 
 if __name__ == '__main__':
