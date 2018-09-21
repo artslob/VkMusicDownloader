@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import itertools
 import logging
 import os
 import sys
@@ -9,6 +10,7 @@ from os.path import join
 
 import aiofiles
 import aiohttp
+import pathvalidate
 
 logger: logging.Logger
 
@@ -27,7 +29,7 @@ def get_parser():
     parser.add_argument('-f', '--file', dest='file', type=FileType(), default=join(current_dir, 'audios.txt'),
                         help="File that contains names of songs and their urls. Can be set to stdin with value '-'. "
                              "Default: %(default)s.")
-    parser.add_argument('-n', '--number', dest='number', type=int, default=10,
+    parser.add_argument('-n', '--number', dest='number', type=int, default=10,  # TODO: check positive
                         help='Number of files that downloading at the same time. Default: %(default)s.')
     parser.add_argument('-l', '--logfile', dest='logfile', type=FileType('w'), default='-',
                         help="Writable file for logging. By default set to stdout with value '%(default)s'.")
@@ -63,7 +65,7 @@ async def download_coroutine(session, name, url, chunk_size=1 << 15):
     try:
         async with session.get(url) as response:
             logging.info('downloading %s', name)
-            filename = os.path.join('/E/Music/vk/', name)  # TODO: change for args.dir
+            filename = os.path.join('/E/Projects/PyCharm/VkMusicBackup', name)  # TODO: change for args.dir
             async with aiofiles.open(filename, 'wb') as file:
                 while True:
                     chunk = await response.content.read(chunk_size)
@@ -81,25 +83,33 @@ async def download(loop, name, url):
         await download_coroutine(session, name, url)
 
 
+def get_songs(file):
+    i = 1
+    for line in file.readlines():
+        name, url = (el.strip() for el in line.split('\t'))
+        try:
+            name = pathvalidate.sanitize_filename(name)
+        except pathvalidate.error.ValidationError:
+            name = f'unknown-name({i}).mp3'
+            i += 1
+        yield f'{name}.mp3', url
+
+
 def main():
     global logger
 
     parser = get_parser()
     args = parser.parse_args()
     logger = get_logger(args, parser.prog)
-
-    data = []
-    for line in args.file.readlines():
-        name, url = (el.strip() for el in line.strip().split('\t'))
-        name: str
-        data.append((name.replace('/', ''), url))
-
-    num = args.number
-
     loop = asyncio.get_event_loop()
-    for i in range(len(data) // num):
-        low, upper = i * num, (i + 1) * num
-        loop.run_until_complete(asyncio.gather(*(download(loop, name, url) for name, url in data[low:upper])))
+
+    songs = get_songs(args.file)
+
+    while True:
+        next_songs = list(itertools.islice(songs, args.number))
+        if not next_songs:
+            break
+        loop.run_until_complete(asyncio.gather(*(download(loop, name, url) for name, url in next_songs)))
 
 
 if __name__ == '__main__':
