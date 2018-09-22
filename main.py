@@ -64,7 +64,7 @@ def get_logger(args, program_name):
 async def download_coroutine(session, name, url, chunk_size=1 << 15):
     try:
         async with session.get(url) as response:
-            logging.info('downloading %s', name)
+            logging.info('Downloading "%s"', name)
             filename = os.path.join('/E/Projects/PyCharm/VkMusicBackup', name)  # TODO: change for args.dir
             async with aiofiles.open(filename, 'wb') as file:
                 while True:
@@ -72,10 +72,10 @@ async def download_coroutine(session, name, url, chunk_size=1 << 15):
                     if not chunk:
                         break
                     await file.write(chunk)
-            logging.info('done %s', name)
+            logging.info('Done "%s"', name)
             return await response.release()
-    except aiohttp.client_exceptions.ClientError as e:
-        logging.exception('error occurred')
+    except (aiohttp.client_exceptions.ClientError, OSError):
+        logging.exception('Song not completed: "%s"', name)
 
 
 async def download(loop, name, url):
@@ -89,10 +89,11 @@ def get_songs(file):
         name, url = (el.strip() for el in line.split('\t'))
         try:
             name = pathvalidate.sanitize_filename(name)
-        except pathvalidate.error.ValidationError:
+        except pathvalidate.error.ValidationError as e:
+            logger.error(f'Could not sanitize name "{name}": %s', e)
             name = f'unknown-name({i}).mp3'
             i += 1
-        yield f'{name}.mp3', url
+        yield f'{name}.mp3', url  # TODO: return current number of song (enumerate)
 
 
 def main():
@@ -101,8 +102,11 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
     logger = get_logger(args, parser.prog)
-    loop = asyncio.get_event_loop()
+    # TODO: debug all args
+    logger.debug('Current level of logging: %s', logging.getLevelName(logger.getEffectiveLevel()))
+    logger.info('Program started')
 
+    loop = asyncio.get_event_loop()
     songs = get_songs(args.file)
 
     while True:
@@ -110,6 +114,8 @@ def main():
         if not next_songs:
             break
         loop.run_until_complete(asyncio.gather(*(download(loop, name, url) for name, url in next_songs)))
+
+    logger.info('End execution. Download is completed.')  # TODO: execution time
 
 
 if __name__ == '__main__':
