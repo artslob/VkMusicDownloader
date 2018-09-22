@@ -50,7 +50,7 @@ def get_logger(args, program_name):
         logging_params['handlers'] = [FileHandler(args.logfile.name, encoding='utf8'), ]
 
     for number, level in LogLevels.items():
-        if number == args.number:
+        if number == args.verbose:
             logging_params['level'] = level
             break
     else:
