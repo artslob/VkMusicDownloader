@@ -1,9 +1,11 @@
 import argparse
 import asyncio
+import datetime
 import itertools
 import logging
 import os
 import sys
+import time
 from argparse import FileType
 from logging import FileHandler
 from os.path import join
@@ -112,6 +114,7 @@ def main():
     args = parser.parse_args()
     logger = get_logger(args, parser.prog)
     opening_log(args)
+    start_time = time.time()
 
     loop = asyncio.get_event_loop()
     songs = get_songs(args.file)
@@ -123,7 +126,7 @@ def main():
         downloads = (download(loop, song_no, args.dir, name, url) for song_no, name, url in next_songs)
         loop.run_until_complete(asyncio.gather(*downloads))
 
-    logger.info('Program is completed.')  # TODO: execution time
+    logger.info(f'Program ran for {datetime.timedelta(seconds=int(time.time() - start_time))}.')
 
 
 if __name__ == '__main__':
