@@ -65,10 +65,11 @@ def get_logger(args, program_name):
     return logging.getLogger(program_name)
 
 
-async def download_coroutine(session, name, url, chunk_size=1 << 15):
+async def download_coroutine(session, song_no, name, url, *, chunk_size=1 << 15):
+    log_entry = f'[{song_no:03}]: "{name}"'
     try:
         async with session.get(url) as response:
-            logging.info('Downloading "%s"', name)
+            logging.info(f'Downloading {log_entry}')
             filename = os.path.join('/E/Projects/PyCharm/VkMusicBackup', name)  # TODO: change for args.dir
             async with aiofiles.open(filename, 'wb') as file:
                 while True:
@@ -76,20 +77,20 @@ async def download_coroutine(session, name, url, chunk_size=1 << 15):
                     if not chunk:
                         break
                     await file.write(chunk)
-            logging.info('Done "%s"', name)
+            logging.info(f'Done {log_entry}')
             return await response.release()
     except (aiohttp.client_exceptions.ClientError, OSError):
-        logging.exception('Song not completed: "%s"', name)
+        logging.exception(f'Song not completed: {log_entry}')
 
 
-async def download(loop, name, url):
+async def download(loop, song_no, name, url):
     async with aiohttp.ClientSession(loop=loop) as session:
-        await download_coroutine(session, name, url)
+        await download_coroutine(session, song_no, name, url)
 
 
 def get_songs(file):
     failed_sanitize_counter = 1
-    for song_no, line in enumerate(file.readlines()):
+    for song_no, line in enumerate(file.readlines(), 1):
         name, url = (el.strip() for el in line.split('\t'))
         try:
             new_name = pathvalidate.sanitize_filename(name)
@@ -118,7 +119,8 @@ def main():
         next_songs = list(itertools.islice(songs, args.number))
         if not next_songs:
             break
-        loop.run_until_complete(asyncio.gather(*(download(loop, name, url) for song_no, name, url in next_songs)))
+        downloads = (download(loop, song_no, name, url) for song_no, name, url in next_songs)
+        loop.run_until_complete(asyncio.gather(*downloads))
 
     logger.info('Program is completed.')  # TODO: execution time
 
