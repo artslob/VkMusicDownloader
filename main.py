@@ -89,7 +89,7 @@ async def download(loop, name, url):
 
 def get_songs(file):
     failed_sanitize_counter = 1
-    for line in file.readlines():
+    for song_no, line in enumerate(file.readlines()):
         name, url = (el.strip() for el in line.split('\t'))
         try:
             new_name = pathvalidate.sanitize_filename(name)
@@ -100,7 +100,7 @@ def get_songs(file):
         else:
             if name != new_name:
                 logger.info(f'Song name "{name}" sanitized to "{new_name}"')
-        yield f'{new_name}.mp3', url  # TODO: return current number of song (enumerate)
+        yield song_no, f'{new_name}.mp3', url
 
 
 def main():
@@ -118,7 +118,7 @@ def main():
         next_songs = list(itertools.islice(songs, args.number))
         if not next_songs:
             break
-        loop.run_until_complete(asyncio.gather(*(download(loop, name, url) for name, url in next_songs)))
+        loop.run_until_complete(asyncio.gather(*(download(loop, name, url) for song_no, name, url in next_songs)))
 
     logger.info('Program is completed.')  # TODO: execution time
 
