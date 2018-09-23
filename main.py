@@ -65,12 +65,12 @@ def get_logger(args, program_name):
     return logging.getLogger(program_name)
 
 
-async def download_coroutine(session, song_no, name, url, *, chunk_size=1 << 15):
+async def download_coroutine(session, song_no, directory, name, url, *, chunk_size=1 << 15):
     log_entry = f'[{song_no:03}]: "{name}"'
     try:
         async with session.get(url) as response:
             logging.info(f'Downloading {log_entry}')
-            filename = os.path.join('/E/Projects/PyCharm/VkMusicBackup', name)  # TODO: change for args.dir
+            filename = os.path.join(directory, name)
             async with aiofiles.open(filename, 'wb') as file:
                 while True:
                     chunk = await response.content.read(chunk_size)
@@ -83,9 +83,9 @@ async def download_coroutine(session, song_no, name, url, *, chunk_size=1 << 15)
         logging.exception(f'Song not completed: {log_entry}')
 
 
-async def download(loop, song_no, name, url):
+async def download(loop, song_no, directory, name, url):
     async with aiohttp.ClientSession(loop=loop) as session:
-        await download_coroutine(session, song_no, name, url)
+        await download_coroutine(session, song_no, directory, name, url)
 
 
 def get_songs(file):
@@ -119,7 +119,7 @@ def main():
         next_songs = list(itertools.islice(songs, args.number))
         if not next_songs:
             break
-        downloads = (download(loop, song_no, name, url) for song_no, name, url in next_songs)
+        downloads = (download(loop, song_no, args.dir, name, url) for song_no, name, url in next_songs)
         loop.run_until_complete(asyncio.gather(*downloads))
 
     logger.info('Program is completed.')  # TODO: execution time
