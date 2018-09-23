@@ -88,12 +88,15 @@ def get_songs(file):
     for line in file.readlines():
         name, url = (el.strip() for el in line.split('\t'))
         try:
-            name = pathvalidate.sanitize_filename(name)
+            new_name = pathvalidate.sanitize_filename(name)
         except pathvalidate.error.ValidationError as e:
-            logger.error(f'Could not sanitize name "{name}": %s', e)
-            name = f'unknown-name({i}).mp3'
+            logger.error(f'Could not sanitize name "{name}": {e}')
+            new_name = f'unknown-name-({i})'
             i += 1
-        yield f'{name}.mp3', url  # TODO: return current number of song (enumerate)
+        else:
+            if name != new_name:
+                logger.info(f'Song name "{name}" sanitized to "{new_name}"')
+        yield f'{new_name}.mp3', url  # TODO: return current number of song (enumerate)
 
 
 def main():
