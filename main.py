@@ -40,6 +40,15 @@ def get_parser():
     return parser
 
 
+def opening_log(args):
+    logger.info('Program started')
+    for param, value in args._get_args():
+        logger.debug(f'{param}: {value}')
+    for param, value in args._get_kwargs():
+        logger.debug(f'{param}: {value}')
+    logger.debug('Current level of logging: %s', logging.getLevelName(logger.getEffectiveLevel()))
+
+
 def get_logger(args, program_name):
     logging_params = {
         'format': '[%(asctime)s] [%(levelname)s] %(message)s',
@@ -105,9 +114,7 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
     logger = get_logger(args, parser.prog)
-    # TODO: debug all args
-    logger.debug('Current level of logging: %s', logging.getLevelName(logger.getEffectiveLevel()))
-    logger.info('Program started')
+    opening_log(args)
 
     loop = asyncio.get_event_loop()
     songs = get_songs(args.file)
@@ -118,7 +125,7 @@ def main():
             break
         loop.run_until_complete(asyncio.gather(*(download(loop, name, url) for name, url in next_songs)))
 
-    logger.info('End execution. Download is completed.')  # TODO: execution time
+    logger.info('Program is completed.')  # TODO: execution time
 
 
 if __name__ == '__main__':
