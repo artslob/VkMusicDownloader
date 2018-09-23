@@ -58,12 +58,7 @@ def get_logger(args, program_name):
     if args.logfile is not sys.stdout:
         logging_params['handlers'] = [FileHandler(args.logfile.name, encoding='utf8'), ]
 
-    for number, level in LogLevels.items():
-        if number == args.verbose:
-            logging_params['level'] = level
-            break
-    else:
-        logging_params['level'] = LogLevels[0]
+    logging_params['level'] = LogLevels.get(args.verbose, 0)
 
     logging.basicConfig(**logging_params)
 
