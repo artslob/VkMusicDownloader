@@ -88,15 +88,15 @@ async def download(loop, name, url):
 
 
 def get_songs(file):
-    i = 1
+    failed_sanitize_counter = 1
     for line in file.readlines():
         name, url = (el.strip() for el in line.split('\t'))
         try:
             new_name = pathvalidate.sanitize_filename(name)
         except pathvalidate.error.ValidationError as e:
             logger.error(f'Could not sanitize name "{name}": {e}')
-            new_name = f'unknown-name-({i})'
-            i += 1
+            new_name = f'unknown-name-({failed_sanitize_counter})'
+            failed_sanitize_counter += 1
         else:
             if name != new_name:
                 logger.info(f'Song name "{name}" sanitized to "{new_name}"')
