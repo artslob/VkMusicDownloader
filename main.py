@@ -40,15 +40,6 @@ def get_parser():
     return parser
 
 
-def opening_log(args):
-    logger.info('Program started')
-    for param, value in args._get_args():
-        logger.debug(f'{param}: {value}')
-    for param, value in args._get_kwargs():
-        logger.debug(f'{param}: {value}')
-    logger.debug('Current level of logging: %s', logging.getLevelName(logger.getEffectiveLevel()))
-
-
 def get_logger(args, program_name):
     logging_params = {
         'format': '[%(asctime)s] [%(levelname)s] %(message)s',
@@ -65,9 +56,19 @@ def get_logger(args, program_name):
     return logging.getLogger(program_name)
 
 
+def opening_log(args):
+    logger.info('Program started')
+    for param, value in args._get_args():
+        logger.debug(f'{param}: {value}')
+    for param, value in args._get_kwargs():
+        logger.debug(f'{param}: {value}')
+    logger.debug('Current level of logging: %s', logging.getLevelName(logger.getEffectiveLevel()))
+
+
 async def download_coroutine(session, song_no, directory, name, url, *, chunk_size=1 << 15):
     log_entry = f'[{song_no:03}]: "{name}"'
     try:
+        # TODO: check for 200 status
         async with session.get(url) as response:
             logging.info(f'Downloading {log_entry}')
             filename = os.path.join(directory, name)
