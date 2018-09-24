@@ -26,7 +26,7 @@ LogLevels = {
 def get_parser():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parser = argparse.ArgumentParser(description='Download audios from text file with links.')
-    parser.add_argument('-d', '--dir', dest='dir', type=str, default=current_dir,
+    parser.add_argument('-d', '--dir', dest='dir', type=writable_dir, default=current_dir,
                         help='Destination directory where audios are saved. Default: %(default)s.')
     parser.add_argument('-f', '--file', dest='file', type=FileType(), default=join(current_dir, 'audios.txt'),
                         help="File that contains names of songs and their urls. Can be set to stdin with value '-'. "
@@ -40,6 +40,16 @@ def get_parser():
                              ', '.join(f'{"-" + "v" * number if number else "default"}: {logging._levelToName[level]}'
                                        for number, level in LogLevels.items()))
     return parser
+
+
+def writable_dir(directory):
+    if not os.path.isdir(directory):
+        raise argparse.ArgumentTypeError(f'not a directory: {directory!r}')
+    if os.access(directory, os.W_OK):
+        directory = os.path.expanduser(directory)
+        return os.path.abspath(directory)
+    else:
+        raise argparse.ArgumentTypeError(f'directory is not writable: {directory!r}')
 
 
 def positive_int(arg):
