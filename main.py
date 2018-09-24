@@ -89,11 +89,10 @@ def opening_log(args):
     logger.debug('Current level of logging: %s', logging.getLevelName(logger.getEffectiveLevel()))
 
 
-async def download_coroutine(session, song_no, directory, name, url, *, chunk_size=1 << 15):
+async def download_coroutine(session: aiohttp.ClientSession, song_no, directory, name, url, *, chunk_size=1 << 15):
     log_entry = f'[{song_no:03}]: "{name}"'
     try:
-        # TODO: check for 200 status
-        async with session.get(url) as response:
+        async with session.get(url) as response:  # type: aiohttp.ClientResponse
             logging.info(f'Downloading {log_entry}')
             filename = os.path.join(directory, name)
             async with aiofiles.open(filename, 'wb') as file:
@@ -104,12 +103,12 @@ async def download_coroutine(session, song_no, directory, name, url, *, chunk_si
                     await file.write(chunk)
             logging.info(f'Done {log_entry}')
             return await response.release()
-    except (aiohttp.client_exceptions.ClientError, OSError):
-        logging.exception(f'Song not completed: {log_entry}')
+    except (aiohttp.client_exceptions.ClientError, OSError) as e:
+        logging.error(f"Song not completed: {log_entry} with error '{e}'")
 
 
 async def download(loop, song_no, directory, name, url):
-    async with aiohttp.ClientSession(loop=loop) as session:
+    async with aiohttp.ClientSession(loop=loop, raise_for_status=True) as session:
         await download_coroutine(session, song_no, directory, name, url)
 
 
@@ -137,7 +136,6 @@ def main():
     logger = get_logger(args, parser.prog)
     opening_log(args)
     start_time = time.time()
-    exit()
 
     loop = asyncio.get_event_loop()
     songs = get_songs(args.file)
