@@ -72,7 +72,8 @@ def get_logger(args, program_name):
     if args.logfile is not sys.stdout:
         logging_params['handlers'] = [FileHandler(args.logfile.name, encoding='utf8'), ]
 
-    logging_params['level'] = LogLevels.get(args.verbose, 0)
+    most_verbose_key = sorted(LogLevels.keys())[-1]
+    logging_params['level'] = LogLevels.get(args.verbose, LogLevels[most_verbose_key])
 
     logging.basicConfig(**logging_params)
 
@@ -136,6 +137,7 @@ def main():
     logger = get_logger(args, parser.prog)
     opening_log(args)
     start_time = time.time()
+    exit()
 
     loop = asyncio.get_event_loop()
     songs = get_songs(args.file)
