@@ -6,7 +6,7 @@ import logging
 import os
 import sys
 import time
-from argparse import FileType
+from argparse import FileType, ArgumentTypeError
 from logging import FileHandler
 from os.path import join
 
@@ -31,7 +31,7 @@ def get_parser():
     parser.add_argument('-f', '--file', dest='file', type=FileType(), default=join(current_dir, 'audios.txt'),
                         help="File that contains names of songs and their urls. Can be set to stdin with value '-'. "
                              "Default: %(default)s.")
-    parser.add_argument('-n', '--number', dest='number', type=int, default=10,  # TODO: check positive
+    parser.add_argument('-n', '--number', dest='number', type=positive_int, default=10,
                         help='Number of files that downloading at the same time. Default: %(default)s.')
     parser.add_argument('-l', '--logfile', dest='logfile', type=FileType('w'), default='-',
                         help="Writable file for logging. By default set to stdout with value '%(default)s'.")
@@ -40,6 +40,17 @@ def get_parser():
                              ', '.join(f'{"-" + "v" * number if number else "default"}: {logging._levelToName[level]}'
                                        for number, level in LogLevels.items()))
     return parser
+
+
+def positive_int(arg):
+    try:
+        arg = int(arg)
+    except (ValueError, TypeError):
+        raise ArgumentTypeError(f'not integer value: {arg!r}')
+    if arg > 0:
+        return arg
+    else:
+        raise ArgumentTypeError('value should be positive')
 
 
 def get_logger(args, program_name):
