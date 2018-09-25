@@ -99,6 +99,7 @@ function vk_downloader_check_is_blocked(audio) {
 function vk_downloader_get_links(audios, handler) {
     let i = 0;
     let num = vk_downloader_audios_max_number(audios);
+    let previous_url = '';
     let interval = setInterval(
         function () {
             if (i >= num) {
@@ -114,12 +115,21 @@ function vk_downloader_get_links(audios, handler) {
                 let performer = jQuery(audios[i]).find(".audio_row__performers").text().trim();
                 let title = jQuery(audios[i]).find(".audio_row__title .audio_row__title_inner").text().trim();
                 let url = getAudioPlayer()._impl._currentAudioEl.src;
-                let is_blocked = vk_downloader_check_is_blocked(audios[i]);
-                if (is_blocked) {
+
+                if (vk_downloader_check_is_blocked(audios[i])) {
                     console.log('BLOCKED: ' + performer + ' - ' + title);
                     i++;
                     return;
                 }
+
+                if (url === previous_url) {
+                    console.log('Url have not changed. Will try to get on next iteration.');
+                    return;
+                }
+                else {
+                    previous_url = url;
+                }
+
                 console.log('[' + (i + 1) + ' of ' + num + '] ' + performer + ' - ' + title);
                 handler.handle(url, performer, title);
                 i++;
