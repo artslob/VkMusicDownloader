@@ -52,12 +52,8 @@ function VkDownloaderCreateHandler() {
     let type = VK_DOWNLOADER_HANDLER_TYPE.toLowerCase();
     if (type === 'text') {
         this.array = [];
-        this.handle = function (url, performer, title, is_blocked) {
+        this.handle = function (url, performer, title) {
             let name = performer + ' - ' + title;
-            if (is_blocked) {
-                console.log('BLOCKED: ' + name);
-                return;
-            }
             url = url.split('?extra=')[0];  // removing extra params
             this.array.push(name + '\t' + url);
         };
@@ -72,12 +68,8 @@ function VkDownloaderCreateHandler() {
         };
     }
     else if (type === 'file') {
-        this.handle = function (url, performer, title, is_blocked) {
+        this.handle = function (url, performer, title) {
             let name = performer + ' - ' + title;
-            if (is_blocked) {
-                console.log('BLOCKED: ' + name);
-                return;
-            }
             vk_downloader_download_file(url, name, 'audio/mp3');
         };
         this.callback = function () {
@@ -123,8 +115,13 @@ function vk_downloader_get_links(audios, handler) {
                 let title = jQuery(audios[i]).find(".audio_row__title .audio_row__title_inner").text().trim();
                 let url = getAudioPlayer()._impl._currentAudioEl.src;
                 let is_blocked = vk_downloader_check_is_blocked(audios[i]);
+                if (is_blocked) {
+                    console.log('BLOCKED: ' + performer + ' - ' + title);
+                    i++;
+                    return;
+                }
                 console.log('[' + (i + 1) + ' of ' + num + '] ' + performer + ' - ' + title);
-                handler.handle(url, performer, title, is_blocked);
+                handler.handle(url, performer, title);
                 i++;
             }, VK_DOWNLOADER_PLAYER_TIMEOUT);
         },
