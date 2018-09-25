@@ -85,6 +85,8 @@ function vk_downloader_if_playlist() {
     return $(".ap_layer_wrap").css("display") === "block";
 }
 
+
+// Проверка, заблокирована ли аудиозапись
 function vk_downloader_check_is_blocked(audio) {
     let parent = audio.parentElement;
     if (parent.hasAttribute('classList')) {
