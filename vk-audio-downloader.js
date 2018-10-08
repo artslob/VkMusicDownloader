@@ -102,43 +102,50 @@ function vk_downloader_get_links(audios, handler) {
     let i = 0;
     let num = vk_downloader_audios_max_number(audios);
     let previous_url = '';
-    let interval = setInterval(
-        function () {
-            if (i >= num) {
-                console.log("Все аудиозаписи скачаны!");
-                clearInterval(interval);
-                handler.callback();
-                return;
-            }
-            let newEvent = new Event("click");
-            audios[i].dispatchEvent(newEvent);
-            getAudioPlayer().toggleAudio(audios[i], newEvent);
-            setTimeout(function () {
-                let performer = jQuery(audios[i]).find(".audio_row__performers").text().trim();
-                let title = jQuery(audios[i]).find(".audio_row__title .audio_row__title_inner").text().trim();
-                let url = getAudioPlayer()._impl._currentAudioEl.src;
 
-                if (vk_downloader_check_is_blocked(audios[i])) {
-                    console.log('BLOCKED: ' + performer + ' - ' + title);
-                    i++;
-                    return;
-                }
+    function first() {
+        if (i >= num) {
+            console.log("Все аудиозаписи скачаны!");
+            handler.callback();
+            return;
+        }
+        let newEvent = new Event("click");
+        audios[i].dispatchEvent(newEvent);
+        getAudioPlayer().toggleAudio(audios[i], newEvent);
+        setTimeout(
+            function () {
+                second();
+                setTimeout(first, VK_DOWNLOADER_TRIGGER_INTERVAL);
+            },
+            VK_DOWNLOADER_PLAYER_TIMEOUT
+        );
+    }
 
-                if (url === previous_url) {
-                    console.log('Url have not changed. Will try to get on next iteration.');
-                    return;
-                }
-                else {
-                    previous_url = url;
-                }
+    function second() {
+        let performer = jQuery(audios[i]).find(".audio_row__performers").text().trim();
+        let title = jQuery(audios[i]).find(".audio_row__title .audio_row__title_inner").text().trim();
+        let url = getAudioPlayer()._impl._currentAudioEl.src;
 
-                console.log('[' + (i + 1) + ' of ' + num + '] ' + performer + ' - ' + title);
-                handler.handle(url, performer, title);
-                i++;
-            }, VK_DOWNLOADER_PLAYER_TIMEOUT);
-        },
-        VK_DOWNLOADER_TRIGGER_INTERVAL + VK_DOWNLOADER_PLAYER_TIMEOUT
-    );
+        if (vk_downloader_check_is_blocked(audios[i])) {
+            console.log('BLOCKED: ' + performer + ' - ' + title);
+            i++;
+            return;
+        }
+
+        if (url === previous_url) {
+            console.log('Url have not changed. Will try to get on next iteration.');
+            return;
+        }
+        else {
+            previous_url = url;
+        }
+
+        console.log('[' + (i + 1) + ' of ' + num + '] ' + performer + ' - ' + title);
+        handler.handle(url, performer, title);
+        i++;
+    }
+
+    first();
 }
 
 // Скачать отдельный файл
