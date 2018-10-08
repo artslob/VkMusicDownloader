@@ -28,13 +28,11 @@
    Затем установим виртуальное окружение:
    ```bash
    # unix
-   git clone https://github.com/artslob/VkMusicDownloader.git
    cd VkMusicDownloader
    python3 -m venv vk_venv
    source vk_venv/bin/activate
    
    # windows
-   git clone https://github.com/artslob/VkMusicDownloader.git
    cd VkMusicDownloader
    python3 -m venv vk_venv
    vk_venv\Scripts\activate.bat
