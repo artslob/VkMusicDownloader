@@ -31,11 +31,13 @@
    cd VkMusicDownloader
    python3 -m venv vk_venv
    source vk_venv/bin/activate
+   python3 -m pip install -r requirements.txt
    
    # windows
    cd VkMusicDownloader
    python3 -m venv vk_venv
    vk_venv\Scripts\activate.bat
+   python3 -m pip install -r requirements.txt
    ```
 ### 2. Использование
 #### 2.1 Загрузка аудиозаписей средствами браузера
@@ -54,5 +56,40 @@
 Точно так же, как и [загрузка аудиозаписей средствами браузера](#21-Загрузка-аудиозаписей-средствами-браузера), только не нужно изменять `TEXT` на `FILE` в строке `var VK_DOWNLOADER_HANDLER_TYPE = 'TEXT';`.  
 В конце загрузки должно появиться окно с предложением скачать текстовый файл `audios.txt`. Если окно не появилось, то листните вниз страницы, там, скорее всего внизу и слева, будет ссылка с названием `audios.txt`. Нажмите на неё.
 
+#### 2.3 Загрузка из тестового файла с помощью python скрипта.
+После того, как Вы скачали [файл](#22-сохранение-списка-аудиозаписей-в-текстовый-файл) со списком аудиозаписей и их URL, а также [установили окружение](#1-установка), Вы можете использовать скрипт.  
+Чтобы получить помощь по параметрам скрипта, выполните команду: `python3 main.py -h`.
+Скрипт будет использовать параметры по умолчанию, если не указывать флаги.
+Пример запуска:
+```bash
+python3 main.py -f /some/directory/audios.txt -d /where/to/save/audios/ -vv
+```
+`-f` – путь к файлу со списком аудиозаписей. По умолчанию ищется файл с названием `audios.txt` в той же директории, где лежит скрипт `main.py`.  
+`-d` – путь к директории, в которую будут загружены аудиозаписи. По умолчанию это та же директория, где лежит скрипт `main.py`.  
+`-vv` – означает высокий уровень логирования. Скрипт будет выводить полную информацию о выполнении на [стандартный вывод](https://ru.wikipedia.org/wiki/Стандартные_потоки#Стандартный_вывод). Можно сохранять лог в файл с помощью параметра `-l`.  
+
+Текущий help скрипта (когда скрипт находится в папке `/tmp`):
+```
+usage: main.py [-h] [-d DIR] [-f FILE] [-n NUMBER] [-l LOGFILE] [-v]
+
+Download audios from text file with links.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DIR, --dir DIR     Destination directory where audios are saved. Default:
+                        /tmp.
+  -f FILE, --file FILE  File that contains names of songs and their urls. Can
+                        be set to stdin with value '-'. Default:
+                        /tmp/audios.txt.
+  -n NUMBER, --number NUMBER
+                        Number of files that downloading at the same time.
+                        Default: 10.
+  -l LOGFILE, --logfile LOGFILE
+                        Writable file for logging. By default set to stdout
+                        with value '-'.
+  -v, --verbose         Set level of logging. You can increase level by
+                        repeating key. Levels by number: default: WARNING, -v:
+                        INFO, -vv: DEBUG
+```
 ## Лицензия
 [MIT License](LICENSE.txt)
