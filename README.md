@@ -99,7 +99,7 @@ optional arguments:
 
 ## Благодарности
 [@abler](https://github.com/abler98) за оригинальный [скрипт](https://gist.github.com/abler98/2fbeee9f7bd056bbe6c485041370c556).  
-[@fizvlad](https://github.com/fizvlad) за [форк](https://gist.github.com/fizvlad/4c2eb98b5fb12a6a975d27b0bfcd9fcf), с которого был сделан форк [vk-audio-downloader.js](vk-audio-downloader.js).  
+[@fizvlad](https://github.com/fizvlad) за [форк](https://gist.github.com/fizvlad/4c2eb98b5fb12a6a975d27b0bfcd9fcf) оригинального скрипта, с которого был сделан форк [vk-audio-downloader.js](vk-audio-downloader.js).  
 
 ## Дисклеймер
 1. Социальная сеть ВКонтакте, о которой говорится в этом README и остальных файлах проекта, является вымышленной социальной сетью и не имеет никакого отношения к [vk.com](https://vk.com). Все действия и инструкции, представленные на этой странице, не имеют никакого отношения к реальной жизни.
