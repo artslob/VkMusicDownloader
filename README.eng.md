@@ -1,6 +1,6 @@
 # VK Music Downloader
 The project is intended for use in russian social network VKontakte.  
-Must to be read ([disclaimer](#Disclaimer)).
+Must to be read [disclaimer](#disclaimer).
 
 Features:
 1. Download audios from user's audio list or some open playlist by using only browser.
@@ -9,7 +9,7 @@ Features:
 
 ## Instruction
 ### 1. Installation
-If you only want to download audios using browser ([2.1](#21-Download-audios-using-browser)) or save audios to text file ([2.2](#22-Download-list-of-audios-as-text-file)), you can skip this installation.
+If you only want to download audios using browser ([2.1](#21-download-audios-using-browser)) or save audios to text file ([2.2](#22-download-list-of-audios-as-text-file)), you can skip this installation.
 1. Download source project code. You can achive this 2 ways:
    * Download and unzip [archive](../../archive/master.zip).
    * Or use git:
@@ -54,11 +54,11 @@ If you only want to download audios using browser ([2.1](#21-Download-audios-usi
 1. Leave browser tab open for a while. It's desirable for tab to be focused.
 
 #### 2.2 Download list of audios as text file.
-Similar to download audios [using only browser](#21-Download-audios-using-browser), but copy content of another file: [link](../../raw/master/js-handlers/vk-audio-downloader-text.js).  
+Similar to download audios [using only browser](#21-download-audios-using-browser), but copy content of another file: [link](../../raw/master/js-handlers/vk-audio-downloader-text.js).  
 At the end of download should appear window with offering to download text file `audios.txt`. If window didn't appear, then scroll to the page bottom, there, probably of left and lower side of screen, should be link with `audios.txt` name. Click it.
 
 #### 2.3 Download audios from text file using python.
-In previous step you downloaded [file](#22-Download-list-of-audios-as-text-file) with list of audios names and their URLs, also installed virtual environment and activated it ([link](#1-Installation)). Now you can use script.  
+In previous step you downloaded [file](#22-download-list-of-audios-as-text-file) with list of audios names and their URLs, also installed virtual environment and activated it ([link](#1-installation)). Now you can use script.  
 To get help on script parameters run `python3 main.py -h`.
 Script will use parameter values by default if these not provided.  
 Usage example:
