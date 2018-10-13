@@ -43,7 +43,7 @@ If you only want to download audios using browser ([2.1](#21-download-audios-usi
 
 ### 2. Usage
 #### 2.1 Download audios using browser
-1. Open content of vk-audio-downloader.js file: [ссылка](../../raw/master/js-handlers/vk-audio-downloader-file.js). Select all text (`Ctrl+A`) and copy.
+1. Open content of vk-audio-downloader.js file: [link](../../raw/master/js-handlers/vk-audio-downloader-file.js). Select all text (`Ctrl+A`) and copy.
 1. Go to page audio page.
 1. Go to bottom of the page. (all audios would be preloaded) (press PageDown button)
 1. Open browser console. (`F12` -> Console or `Ctrl+Shift+J`)
